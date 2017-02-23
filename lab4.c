@@ -30,35 +30,50 @@ menu_t get_input(void)
 }
 menu_t is_valid(menu_t choice)
 {
-if(choice < Sin || choice > QUIT)
-	{printf("%d is an invalid option. Please try again.", choice);
+if(choice < Sine || choice > QUIT)
+	{printf("%d is an invalid option. Please try again.\n", choice);
 	get_input();}
 else	
 	return choice;
 }
-void program_loop(menu_t choice)
+
+double get_radians(double angle)	
+{
+	return (angle/180) * PI;
+}
+
+void program_loop(void)
 {
 	for(int i=0; i < LOOP_LIMIT; i++)
 		{menu_t choice = get_input();
-		double output, angle = 0;
-		
+		double output;
+		double angle = 0;		
+
 		switch(choice)
 			
 			{case Sine:
 				for(angle; angle <= 90; angle+=15)
-					{output = sin(angle);
-					printf("	sin(%d) = %.4f\n", angle, output);}
+					{output = sin(get_radians(angle));					
+					printf("	sin(%d) = %.4f\n", (int)angle, output);}
 				break;
 			
 			case Cosine:
-				printf("cos");
+				for(angle; angle <= 90; angle+=15)
+					{output = cos(get_radians(angle));					
+					printf("	cos(%d) = %.4f\n", (int)angle, output);}
 				break;
 			
 			case Tangent:
-				printf("tan");
+				for(angle; angle <= 90; angle+=15)
+					{if(angle != 90)
+						{output = tan(get_radians(angle));					
+						printf("	tan(%d) = %.4f\n", (int)angle, output);}
+					else
+						{printf("	tan(%d) = UNDEFINED\n", (int)angle);}
+					}
 				break;
 				
-			case QUIT;
+			case QUIT:
 				i = LOOP_LIMIT;
 				printf("You chose QUIT. Thank you, come again!\n");
 				break;
