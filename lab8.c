@@ -7,26 +7,97 @@
 //Libraries utilized
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <ctype.h>
+
 
 //Constant to limit char input
 #define MAX_STRING_SIZE 80
-//Define boolean terms
-#define FALSE 0
-#define TRUE 1
 
-/* Prototypes of functions here */
-void reverseWords(char *str);
-void reverse(char *begin, char *end);
+/* Reverses strings based on inputted pointer locations */
+void reverse(char *left, char *right)
+{
+	//Temporary holder for char
+	char temp;
+	//Loop until two locations meet in middle
+	while (left < right)
+	{
+	//Assign left char to temp
+	temp = *left;
+	//Increment left as we assign right char to left position 
+	*left++ = *right;
+	//Decrement right as we assign temp char into right position
+	*right-- = temp;
+	}
+}
+/*-----------------------------------------*/
+/* Reverses whole words in provided string */
+void reverseWords(char *str)
+{
+	//Initialize word_start with beginning of str
+	char *word_start = str;
+	 /* temp is for word boundry */
+	char *temp = str;
 
-//Main function of lab8.c
+	/*Loop through while still inside of temp array bounds*/
+	while(*temp)
+	{
+		//Increment	temp
+		temp++;
+		//Check if temp is at end of line
+		if (*temp == '\n')
+		{
+			*temp = '\0';
+			//Call reverse to swap last word
+			reverse(word_start, temp - 1);
+		}
+		//Check if temp is at end of word
+		else if(*temp == ' ')
+		{
+			//Call reverse() to swap found word
+			reverse(word_start, temp - 1);
+			//Increment start of word up to next word start
+			word_start = temp + 1;
+		}
+		else if(*temp == '\0')
+		{
+			//Call reverse to swap last word
+			reverse(word_start, temp - 1);
+		}
+		else if(!isalpha(*temp))
+		{
+			//Convert punctuation into a space
+			*temp = ' ';
+		}
+	}
+	/* End of while-loop */
+
+	/* Call reverse() to flip entire string around */
+	reverse(str, temp - 1);
+}
+/*--------------------------------------------------------------*/
+/* Removes punctuation from a char array and moves letters over */
+void remove_punc(char *str_src)
+{
+	//Initalize position holder
+	size_t pos = 0;
+	//Loop to go through cahr array
+	for (char *p = str_src; *p; ++p)
+		//Check for alphabetical and space chars
+		if(isalpha(*p) || *p == ' ')
+			//increment str_src pos and replace with char from pointer
+			str_src[pos++] = *p;
+	//End string with end chars to ensure reverse() works
+	//str_src[pos] = '\n';
+	str_src[pos] = '\0';
+}
+/* Driver function to test above functions */
 int main(int argc, char *argv[])
 {
 	int N = 0;
 	/* Error Checking Section */
 	//Checks if there is > 1 or < 1 argument given on command line
 	if(argc > 2 || argc < 2)
-		{printf("ERROR: Please provide an integer greater than or equal to 0\n\n");
+		{printf("ERROR: Please provide an integer greater than or equal to 0\n");
 		//Ends program early
 		return 0;}
 		
@@ -37,10 +108,10 @@ int main(int argc, char *argv[])
 		
 		//If given int is less than 0, throw error
 		if(N < 0)
-		{printf("ERROR: Please provide an integer greater than or equal to 0\n\n");
+		{printf("ERROR: Please provide an integer greater than or equal to 0\n");
 		//Ends program early
 		return 0;}}
-	/* End of Parameter Error Section */
+	/* End of Error Section for parameters */
 		
 		//Char array to hold keyboard input
 		char str_array[MAX_STRING_SIZE];
@@ -50,136 +121,15 @@ int main(int argc, char *argv[])
 		for(i = 0; i < N; i++)
 			//fgets() scans in entire line from user input
 			{if(fgets(str_array, MAX_STRING_SIZE, stdin))
-			//If successfully scanned into char array, call reverse()
-				{reverse(str_array);}}
+				//Call remove_punc() to remove punctuation
+				{remove_punc(str_array);
+				//If successfully scanned into char array, call reverse()
+				reverseWords(str_array);
+				//Print finished product
+				printf("%s\n", str_array);}}
 	
+	printf("\n");
 	//End main loop
 	return 0;
 }
-
-/* Reverse Word function */
-void reverseWords(char *s)
-{
-  char *word_begin = s;
-  char *temp = s; /* temp is for word boundry */
- 
-  /*STEP 1 of the above algorithm */
-  while( *temp )
-  {
-    temp++;
-    if (*temp == '\0')
-    {
-      reverse(word_begin, temp-1);
-    }
-    else if(*temp == ' ')
-    {
-      reverse(word_begin, temp-1);
-      word_begin = temp+1;
-    }
-  } /* End of while */
- 
-   /*STEP 2 of the above algorithm */
-  reverse(s, temp-1);
-}
-void reverse(char *begin, char *end)
-{
-  char temp;
-  while (begin < end)
-  {
-    temp = *begin;
-    *begin++ = *end;
-    *end-- = temp;
-  }
-}
- 
-/* Driver function to test above functions */
-int main()
-{
-  char s[] = "i like this program very much";
-  char *temp = s;
-  reverseWords(s);
-  printf("%s", s);
-  getchar();
-  return 0;
-}
-
-/*void reverse(char *str_src)
-{
-	char temp;
-	
-	size_t len = strlen(str_src) - 1;
-	size_t i;
-	size_t j = len;
-	
-	for(i = 0; i < len; i++)
-		
-		{temp = str_src[i];
-		str_src[i] = str_src[j];
-		str_src[j] = temp;
-		j--;
-		
-		if(j == len / 2)
-		{break;}}
-	
-	printf("%s\n", str_src);
-	
-	char *home = str_src;
-	printf("home = %s\n", home);
-	
-	
-	int quit = FALSE;
-	i = 0;
-	j = 0;
-	int iter = 0;
-	while(quit == FALSE)
-	{
-		printf("i: %zu j: %zu\n" , i, j);
-		while(1)
-		{
-			if(str_src[iter] != ' ')
-			{
-				printf("str_src[%d] = %s\n", iter, str_src[iter]);
-				j++;
-				iter++;
-			}
-			else if(str_src[iter] == ' ')
-			{
-				printf("Stop 1\n");
-				break;
-			}
-			else if(str_src[iter] == '\0')
-			{
-				printf("Stop 2\n");
-				quit = TRUE;
-				break;
-			}
-			printf("i: %zu j: %zu\n" , i, j);
-		}
-		quit = TRUE;
-	
-		
-		int word_end = j;
-		printf("Word end = %zu\n", j);
-		len = j - i;
-		printf("Len of word = %zu\n", len);
-		for(; i <= len; i++)
-			
-			{temp = home[i];
-			home[i] = home[j];
-			home[j] = temp;
-			j--;
-			
-			if(j ==  len / 2)
-			{break;}}
-		
-		printf("home string = %s\n", home);
-		
-		i = word_end + 2;
-		j = i;
-		if(*str_src != '\0')
-		{str_src++;}
-		}
-		
-	
-	printf("Final str = %s\n", home);
-}*/
+/*-----------------------------------------*/
